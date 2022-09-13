@@ -14,7 +14,9 @@
 ## Setup
 You need to place `wnjpn.db` in `src` folder.
 (`wnjpn.db` is wordnet database.)
+
 Download link is here.
+(This database exists in emlab drive, too.)
 https://bond-lab.github.io/wnja/data/1.1/wnjpn.db.gz
 
 
