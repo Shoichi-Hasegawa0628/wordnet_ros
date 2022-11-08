@@ -1,45 +1,86 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sqlite3
-
-# WordNetデータの内容の確認
-# sqlite_masterという表から、nameという列のデータを取得
-# conn = sqlite3.connect("wnjpn.db")
-# cur = conn.execute("select name from sqlite_master where type='table'")
-# for row in cur:
-#     print(row)
-#
-# ## wordという表から、先頭から5件のデータを取得
-# cur = conn.execute("select * from word limit 5")
-# for row in cur:
-#     print(row)
-
-## wordという表のデータ構造を取得する
-# cur = conn.execute("PRAGMA TABLE_INFO(word)")
-# for row in cur:
-#     print(row)
-
-# Wordnetに登録されているデータ数の確認
-# cur = conn.execute("select count(*) from word")
-# for row in cur:
-#     print("Wordnetに登録されているWordDBの単語数：%s" % row[0])
-
-
-import wordnet_jp
+import nltk
+from nltk.corpus import wordnet as wn
 import pprint
+# nltk.download('all') # 初回起動時には必ず行う
 
-## 指定した単語の類義語、概念を取得
-# word = ["plate", "bowl", "pitcher_base", "banana", "apple", "orange",
-#         "cracker_box", "pudding_box", "chips_bag", "coffee", "muscat", "fruits_juice",
-#         "pig_doll", "sheep_doll", "penguin_doll", "airplane_toy", "car_toy",
-#         "truck_toy", "tooth_paste", "towel", "cup", "treatments", "sponge", "bath_slipper",
-#         "frog_shaped_sponge", "duck_shaped_sponge"]
+# WordNet上の類義語を検索
+def wordnet_sim_word(word):
+    synonyms = []
 
-# word = 'penguin'
+    for syn in wn.synsets(word):
+        for l in syn.lemmas():
+            # print(l.name())
+            synonyms.append(l.name())
 
-word = ["living", "kitchen", "bathroom", "bedroom"]
+    return list(set(synonyms))
 
-for w in range(len(word)):
-    synonym = wordnet_jp.getSynonym(word[w])
-    print(word[w])
-    pprint.pprint(synonym)
+# 上位, 下位概念の出力
+def output_hypo_hyper(word):
+    print("{}が含まれている現在の概念を表示します".format(word))
+    print(wn.synsets(word)[0], wn.synsets(word)[0].definition())
+
+    print("\n")
+
+    print("{}の上位概念を出力します".format(word))
+    for x in wn.synsets(word)[0].hypernym_paths()[0]:
+        print(x, x.definition())
+
+    print("\n")
+
+    print("{}の下位概念を出力します".format(word))
+    a = wn.synsets(word)
+    a = a[0]
+    types_of_a = a.hyponyms()
+    for x in types_of_a:
+        print(x, x.definition())
+
+    return
+
+
+# WordNetに登録されている単語数を出力 (all, 重複なし)
+def output_the_number_of_word_all():
+    words = []
+    lang_list = sorted(wn.langs())
+    # print(lang_list)
+    for syn in wn.all_synsets():
+        # print(syn)
+        # for l in syn.lemmas():
+        #     words.append(l.name())
+
+        for l in range(len(lang_list)):
+            for w_list in syn.lemmas(lang_list[l]):
+                words.append(w_list.name())
+
+    print("WordNetに登録されている単語数(all): {}".format(len(list(set(words)))))
+
+
+# WordNetに登録されている単語数を出力 (en, 重複なし)
+def output_the_number_of_word_en():
+    words = []
+    for syn in wn.all_synsets():
+        # print(syn)
+        for l in syn.lemmas():
+            words.append(l.name())
+
+    print("WordNetに登録されている単語数(en): {}".format(len(list(set(words)))))
+
+
+# output_hypo_hyper("living")
+
+
+# words = ["living", "kitchen", "bathroom", "bedroom"]
+# for w in range(len(words)):
+#     synonym = wordnet_sim_word(words[w])
+#     print(words[w])
+#     pprint.pprint(synonym)
+
+output_the_number_of_word_all()
+
+# pprint.pprint(wn.synsets('living'))
+
+# lang_list = sorted(wn.langs())
+# print(lang_list)
+
+
